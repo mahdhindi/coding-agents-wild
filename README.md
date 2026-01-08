@@ -50,7 +50,7 @@ https://huggingface.co/datasets/[dataset-path]
 
 If you use this code, please cite:
 ```bibtex
-@article{hindi2025coding,
+@article{hindi2026coding,
   title={Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests},
   author={Hindi, Mahd and Mahmood, Yasir and Mohammed, Linda and Bouktif, Salah and Mediani, Mohammed},
   journal={IEEE Access},
