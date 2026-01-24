@@ -27,10 +27,14 @@ tables:
   pull_request: "all_pull_request.parquet"
   repository: "all_repository.parquet"
   user: "all_user.parquet"
-  review_comments: "pr_review_comments_v2"
-  pr_review: "pr_review"
-  commit_details: "pr_commit_details"
-  pr_task: "pr_task"
+
+  # Comments / reviews
+  review_comments: "pr_review_comments_v2.parquet"
+  pr_review: "pr_reviews.parquet"
+
+  # Patch features
+  commit_details: "pr_commit_details.parquet"
+  pr_task: "pr_task_type.parquet"
 
 paths:
   raw_dir: "data/raw"

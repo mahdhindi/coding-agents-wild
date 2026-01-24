@@ -1,8 +1,10 @@
 import os
+import re
 import yaml
 import pandas as pd
 from utils_hf import read_parquet_hf
 from task_type_rules import infer_task_type
+
 
 def main():
     cfg = yaml.safe_load(open("config/config.yaml", "r", encoding="utf-8"))
@@ -21,62 +23,67 @@ def main():
 
     pr = pd.read_csv(pr_path, low_memory=False)
 
-    # Keep rejected PRs (RAPRs)
+    # --- Keep rejected PRs (RAPRs) ---
+    if "pr_outcome" not in pr.columns:
+        raise ValueError(f"PR CSV missing pr_outcome. Columns: {list(pr.columns)}")
+    if "full_name" not in pr.columns or "number" not in pr.columns:
+        raise ValueError(f"PR CSV must include full_name and number. Columns: {list(pr.columns)}")
+
     rapr = pr.loc[pr["pr_outcome"] == "REJECTED"].copy()
-    if "id_pr" not in rapr.columns:
-    	raise ValueError("PR CSV missing 'id_pr'. Re-run script 01 after patching it to keep dataset PR id.")
+    rapr["full_name"] = rapr["full_name"].astype(str)
+    rapr["number"] = pd.to_numeric(rapr["number"], errors="coerce")
+    rapr = rapr.dropna(subset=["number"])
+    rapr["number"] = rapr["number"].astype("int64")
 
-    rapr_ids = set(pd.to_numeric(rapr["id_pr"], errors="coerce").dropna().astype("int64"))
+    print("Rejected APRs (RAPRs):", len(rapr))
+    rapr_key = rapr[["full_name", "number"]].drop_duplicates()
 
-    print("Rejected APRs (RAPRs):", len(rapr), "Unique PR IDs:", len(rapr_ids))
-
-    # Load review comments table
+    # --- Load review comments table ---
     comments = read_parquet_hf(ds, t["review_comments"]).copy()
 
-    # Try to find PR id column in comments
-    pr_id_candidates = ["id_pr", "pr_id", "pull_request_id", "id"]
-    pr_id_col = None
-    for c in pr_id_candidates:
-        if c in comments.columns:
-            pr_id_col = c
-            break
-    if pr_id_col is None:
-        raise ValueError(f"Cannot find PR id column in review comments table. "
-                         f"Tried {pr_id_candidates}. Available columns: {list(comments.columns)}")
+    if "pull_request_url" not in comments.columns:
+        raise ValueError(
+            "Expected 'pull_request_url' in comments table.\n"
+            f"Available columns: {list(comments.columns)}"
+        )
 
-    # If the comments table has its own id column, we also want comment id
-    # We'll keep all columns and rename safely later.
-    # Filter to comments on rejected PRs only
-    comments[pr_id_col] = pd.to_numeric(comments[pr_id_col], errors="coerce")
-    comments = comments.loc[comments[pr_id_col].isin(rapr_ids)].copy()
+    # --- Extract full_name and number from pull_request_url ---
+    # Example: https://api.github.com/repos/OWNER/REPO/pulls/123
+    pat = re.compile(r"repos/([^/]+/[^/]+)/pulls/(\d+)")
+    extracted = comments["pull_request_url"].astype(str).str.extract(pat)
+
+    comments["full_name"] = extracted[0]
+    comments["number"] = pd.to_numeric(extracted[1], errors="coerce")
+
+    comments = comments.dropna(subset=["full_name", "number"])
+    comments["full_name"] = comments["full_name"].astype(str)
+    comments["number"] = comments["number"].astype("int64")
+
+    # --- Keep only comments on RAPRs ---
+    comments = comments.merge(rapr_key, on=["full_name", "number"], how="inner")
     print("Review comments on RAPRs:", len(comments))
 
-    # Merge PR-level metadata into each comment row
-    # Ensure PR id key is named id_pr for consistency
-    comments = comments.rename(columns={pr_id_col: "id_pr"})
-    rapr_small = rapr.copy()
-    rapr_small["id_pr"] = rapr_small["id"].astype("int64")
-
+    # --- Merge PR-level metadata into each comment row ---
     merged = comments.merge(
-        rapr_small,
-        on="id_pr",
+        rapr,
+        on=["full_name", "number"],
         how="left",
         suffixes=("_comment", "_pr")
     )
 
-    # Derive task_type from PR title
-    title_col = "title"
-    if title_col in merged.columns:
-        merged["task_type"] = merged[title_col].apply(infer_task_type)
+    # --- Derive task_type from PR title ---
+    if "title" in merged.columns:
+        merged["task_type"] = merged["title"].apply(infer_task_type)
     else:
         merged["task_type"] = "unknown"
 
     out_path = os.path.join(derived_dir, "aidev_pop_ge500_pr_review_comments_with_task_type.csv")
     merged.to_csv(out_path, index=False)
+
     print("✅ Wrote:", out_path)
     print("Rows:", len(merged), "Cols:", len(merged.columns))
-    if "task_type" in merged.columns:
-        print("Task type counts:\n", merged["task_type"].value_counts(dropna=False).head(20))
+    print("Task type counts:\n", merged["task_type"].value_counts(dropna=False).head(20))
+
 
 if __name__ == "__main__":
     main()
