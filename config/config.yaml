@@ -5,7 +5,7 @@ python_version: "3.10"
 # AIDev dataset on Hugging Face (Parquet tables)
 # IMPORTANT: replace this with the EXACT dataset path you used.
 # Example format: "orgname/aidev"
-aidev_hf_dataset: "REPLACE_WITH_EXACT_HF_DATASET_PATH"
+aidev_hf_dataset: "hao-li/AIDev"
 
 min_stars: 500
 
