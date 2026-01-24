@@ -1,40 +1,70 @@
 # coding-agents-wild
 
-Replication package for: **Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests**  
-Mahd Hindi, Yasir Mahmood, Linda Mohammed, Salah Bouktif, Mohammed Mediani  
+Replication package for:
+
+**Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests**  
+Mahd Hindi, Yasir Mahmood, Linda Mohammed, Salah Bouktif, Mohamed Mediani  
 (IEEE Access, 2026)
 
-This repository contains code to reproduce the main datasets and analyses used in the paper, using the **AIDev** dataset hosted on Hugging Face.
+This repository contains scripts and notebooks to reproduce the main datasets, tables, and figures reported in the paper, using the **AIDev** dataset from Hugging Face.
 
 ---
 
-## Repository structure
+## What this repo produces (high-level)
 
-- `config/` — configuration (Hugging Face dataset id, table names, output paths)
-- `scripts/` — reproducible pipeline scripts (00–07)
-- `notebooks/` — analysis / plotting notebooks (optional)
-- `data/derived/` — generated CSV outputs (ignored by git via `.gitignore`)
-- `outputs/` — generated figures/tables (may be ignored depending on size)
+From the Hugging Face dataset, we reconstruct:
 
-> Note: large derived artifacts are intentionally not tracked in Git to keep the repo lightweight and avoid accidental secret scanning / large file pushes.
+- A PR-level dataset of agent-generated PRs in repos with **≥ 500 stars** (through **2025-08-01**).
+- Review-comment datasets for rejected APRs and task-type labeling.
+- A ground-truth labeling sheet and exports used in the taxonomy / qualitative annotation workflow.
+
+> Important: Generated/derived outputs are **not** meant to be committed to GitHub (they can be huge, may trigger secret scanners, and are machine-produced). You generate them locally.
 
 ---
 
 ## Data source
 
-We use the Hugging Face dataset:
+This replication package uses the Hugging Face dataset:
 
-- **Hugging Face:** `hao-li/AIDev`
+- Dataset id: `hao-li/AIDev`
 
-Your scripts read directly from Hugging Face via the dataset id in `config/config.yaml`.
+You will download tables through the `datasets` / `huggingface_hub` stack automatically when running the scripts.
 
 ---
 
-## Setup (Windows / macOS / Linux)
+## Repository structure
 
-### 1) Create and activate a virtual environment
+- `config/`  
+  - `config.yaml` (main config: dataset id, tables, paths, filters)
+- `scripts/`  
+  - numbered scripts to reproduce derived datasets step-by-step
+- `notebooks/`  
+  - optional Jupyter notebooks (analysis / exploration)
+- `data/`  
+  - `data/raw/` (optional local cache or manually downloaded artifacts)
+  - `data/derived/` (generated locally by scripts — **ignored by git**)
+- `outputs/`  
+  - generated tables/figures — **ignored by git**
 
-**Windows (cmd):**
-```bat
-python -m venv .venv
-.venv\Scripts\activate
+---
+
+## Requirements
+
+### Recommended environment
+- **Python 3.12** (this is what the repo config targets)
+  - Newer versions (e.g., 3.14) can cause some packages to compile from source on Windows and fail unless build tools are installed.
+
+### OS
+- Windows / macOS / Linux should work. The instructions below include Windows-friendly commands.
+
+### Disk & time
+- The dataset is large. Expect **several GB** of cache and some scripts to take time depending on your network and disk speed.
+
+---
+
+## Quickstart (Windows / PowerShell or CMD)
+
+### 1) Clone
+```bash
+git clone https://github.com/mahdhindi/coding-agents-wild.git
+cd coding-agents-wild
