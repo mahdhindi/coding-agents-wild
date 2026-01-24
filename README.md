@@ -1,68 +1,40 @@
-# coding-agents-failure-modes
-Replication package for: Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests
-# Coding Agents in the Wild: Failure Modes and Rejection Patterns
+# coding-agents-wild
 
-Replication package for the paper:
+Replication package for: **Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests**  
+Mahd Hindi, Yasir Mahmood, Linda Mohammed, Salah Bouktif, Mohammed Mediani  
+(IEEE Access, 2026)
 
-**"Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests"**
+This repository contains code to reproduce the main datasets and analyses used in the paper, using the **AIDev** dataset hosted on Hugging Face.
 
-Mahd Hindi, Yasir Mahmood, Linda Mohammed, Salah Bouktif, Mohammed Mediani
+---
 
-Published in IEEE Access, 2026.
+## Repository structure
 
-## Overview
+- `config/` — configuration (Hugging Face dataset id, table names, output paths)
+- `scripts/` — reproducible pipeline scripts (00–07)
+- `notebooks/` — analysis / plotting notebooks (optional)
+- `data/derived/` — generated CSV outputs (ignored by git via `.gitignore`)
+- `outputs/` — generated figures/tables (may be ignored depending on size)
 
-This repository contains the code and data used to analyze agent-generated 
-pull requests (APRs) in popular GitHub repositories using the AIDev-POP dataset.
+> Note: large derived artifacts are intentionally not tracked in Git to keep the repo lightweight and avoid accidental secret scanning / large file pushes.
 
-## Repository Structure
+---
 
-- `notebooks/` - Jupyter/Colab notebooks for data analysis
-- `data/` - Processed datasets (or instructions to obtain them)
-- `scripts/` - Python scripts for data processing
-- `results/` - Generated figures and tables
+## Data source
 
-## Requirements
+We use the Hugging Face dataset:
 
-- Python 3.8+
-- pandas
-- numpy
-- scikit-learn
-- matplotlib
-- seaborn
+- **Hugging Face:** `hao-li/AIDev`
 
-Install dependencies:
-```bash
-pip install pandas numpy scikit-learn matplotlib seaborn
-```
+Your scripts read directly from Hugging Face via the dataset id in `config/config.yaml`.
 
-## Data
+---
 
-The analysis uses the AIDev dataset available on Hugging Face:
-https://huggingface.co/datasets/[dataset-path]
+## Setup (Windows / macOS / Linux)
 
-## Usage
+### 1) Create and activate a virtual environment
 
-1. Open `notebooks/AIDev_POP.ipynb` in Google Colab or Jupyter
-2. Follow the cells sequentially to reproduce the analysis
-
-## Citation
-
-If you use this code, please cite:
-```bibtex
-@article{hindi2026coding,
-  title={Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests},
-  author={Hindi, Mahd and Mahmood, Yasir and Mohammed, Linda and Bouktif, Salah and Mediani, Mohammed},
-  journal={IEEE Access},
-  year={2026},
-  publisher={IEEE}
-}
-```
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-
-For questions, contact: [mahmoud.alhindi@gmail.com]
+**Windows (cmd):**
+```bat
+python -m venv .venv
+.venv\Scripts\activate
