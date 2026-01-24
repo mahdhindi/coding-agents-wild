@@ -23,3 +23,26 @@ Thumbs.db
 
 # Virtual env (keep both forms; you already ignore .venv but this makes it explicit)
 .venv/
+
+# === Replication outputs / local data (DO NOT COMMIT) ===
+data/raw/
+data/derived/
+data/cache/
+*.parquet
+*.feather
+
+# Large / generated exports
+*.csv
+*.xlsx
+*.xlsm
+
+# If you want to keep small example CSVs, put them in /samples and unignore:
+!samples/
+!samples/**
+
+# Local configs / tokens
+config/local.yaml
+config/*.local.yaml
+*.token
+*.key
+*.pem
