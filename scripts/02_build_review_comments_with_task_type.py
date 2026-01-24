@@ -23,7 +23,11 @@ def main():
 
     # Keep rejected PRs (RAPRs)
     rapr = pr.loc[pr["pr_outcome"] == "REJECTED"].copy()
-    rapr_ids = set(rapr["id"].astype("int64"))
+    if "id_pr" not in rapr.columns:
+    	raise ValueError("PR CSV missing 'id_pr'. Re-run script 01 after patching it to keep dataset PR id.")
+
+    rapr_ids = set(pd.to_numeric(rapr["id_pr"], errors="coerce").dropna().astype("int64"))
+
     print("Rejected APRs (RAPRs):", len(rapr), "Unique PR IDs:", len(rapr_ids))
 
     # Load review comments table
