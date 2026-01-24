@@ -33,7 +33,12 @@ def main():
 
     # Load core tables
     pr = read_parquet_hf(ds, t["pull_request"])
+    # Preserve dataset PR id if present (helps join with comments)
+    if "id" in pr.columns:
+    	pr = pr.rename(columns={"id": "id_pr"})
+
     repo = read_parquet_hf(ds, t["repository"])
+    
 
     # Identify agent column
     agent_col = None
@@ -83,13 +88,14 @@ def main():
 
     # Reorder key columns first (keep the rest)
     key_cols = [
-        "id", "repo_id", "full_name", "stars",
-        "agent_type",
-        "created_at", "closed_at", "merged_at",
-        "turnaround_time_hours",
-        "state", "pr_outcome",
-        "title", "body"
-    ]
+    "id_pr", "repo_id", "full_name", "stars",
+    "number",
+    "agent_type",
+    "created_at", "closed_at", "merged_at",
+    "turnaround_time_hours",
+    "state", "pr_outcome",
+    "title", "body"]
+
     existing_key_cols = [c for c in key_cols if c in pr.columns]
     remaining_cols = [c for c in pr.columns if c not in existing_key_cols]
     pr = pr[existing_key_cols + remaining_cols]
