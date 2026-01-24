@@ -1,6 +1,6 @@
 # Replication config for: Coding Agents in the Wild
 
-python_version: "3.10"
+python_version: "3.12"
 
 # AIDev dataset on Hugging Face (Parquet tables)
 # IMPORTANT: replace this with the EXACT dataset path you used.

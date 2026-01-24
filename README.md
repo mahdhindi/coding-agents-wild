@@ -65,4 +65,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-For questions, contact: [your email or advisor's email]
+For questions, contact: [mahmoud.alhindi@gmail.com]
