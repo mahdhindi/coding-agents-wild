@@ -68,3 +68,95 @@ You will download tables through the `datasets` / `huggingface_hub` stack automa
 ```bash
 git clone https://github.com/mahdhindi/coding-agents-wild.git
 cd coding-agents-wild
+
+### 2) Create + activate a virtual environment
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+
+### 3) Install dependencies
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+
+## Reproduction pipeline (run in this order)
+
+###Step 0 — Sanity check the Hugging Face tables
+
+- Validates that required tables exist and basic schemas look correct.
+```bash
+python scripts/00_sanity_check_tables.py
+
+### Step 1 — Build PR-level agent dataset (≥ 500 stars)
+- Produces the main PR-level file used throughout the analysis.
+```bash
+python scripts/01_build_aidev_pop_agent_prs.py
+- Expected output (written locally):
+  - data/derived/aidev_pop_ge500_agent_prs.csv
+
+### Step 2 — Build review comments dataset + task_type
+- Joins review comments to rejected APRs and infers task types from PR titles.
+``` bash
+python scripts/02_build_review_comments_with_task_type.py
+- Expected output:
+  - data/derived/aidev_pop_ge500_pr_review_comments_with_task_type.csv
+
+### Step 3 — Build PR-level “commented rejected APRs” dataset
+- Aggregates comment-level data into a PR-level dataset for commented rejected APRs.
+```bash
+python scripts/03_build_commented_raprs_pr_level.py
+- Expected output:
+  - data/derived/aidev_pop_ge500_commented_raprs_pr_level.csv
+
+## Optional: Ground-truth sampling + exports (for qualitative labeling)
+- These scripts support the ground-truth 200 workflow.
+### Step 6 — Export review comments for ground-truth 200 PRs
+```bash
+python scripts/06_export_ground_truth_200_review_comments.py
+### Step 7 — Export final blocking comment per PR (ground-truth 200)
+```bash
+python scripts/07_final_blocking_comment_per_pr.py
+
+- Create a labeling sheet (CSV) from the final blocking comments file
+```bash
+python -c "import pandas as pd; p='data/derived/ground_truth_200_final_blocking_comment.csv'; df=pd.read_csv(p); keep=['full_name','number','agent_type','task_type','final_comment_time','path','final_blocking_comment']; keep=[c for c in keep if c in df.columns]; out=df[keep].copy(); out['manual_label']=''; out['manual_bucket']=''; out['notes']=''; out['labeler']=''; out['label_time']=''; out.to_csv('data/derived/ground_truth_200_labeling_sheet.csv', index=False); print('Wrote: data/derived/ground_truth_200_labeling_sheet.csv')"
+
+## Running the notebooks (optional)
+```bash
+python -m pip install jupyter
+jupyter notebook
+
+## Configuration
+- Edit config/config.yaml to change:
+  - Hugging Face dataset id (default: hao-li/AIDev)
+  - min_stars (default: 500)
+  - agent list
+ - output paths under paths
+
+## Git tracking policy (important)
+- data/derived/ and outputs/ are generated artifacts and should not be committed.
+- Large machine-generated CSVs can:
+  - trigger GitHub secret scanning (false positives happen),
+  - bloat the repo
+  - make replication harder.
+This repo keeps code + configs in Git, and keeps generated results local.
+
+## Citation
+If you use this replication package, please cite the paper:
+```bash
+@article{hindi2026codingagents,
+  title     = {Coding Agents in the Wild: Failure Modes and Rejection Patterns of AI-Generated Pull Requests},
+  author    = {Hindi, Mahd and Mahmood, Yasir and Mohammed, Linda and Bouktif, Salah and Mediani, Mohamed},
+  journal   = {IEEE Access},
+  year      = {2026},
+  note      = {Replication package: https://github.com/mahdhindi/coding-agents-wild}
+}
+- Please also cite the AIDev dataset according to its Hugging Face page and/or associated paper.
+
+## License
+MIT License. See LICENSE.
+
+## Contact
+For questions or issues:
+  - Mahmoud AlHindi — mahmoud.alhindi@gmail.com
