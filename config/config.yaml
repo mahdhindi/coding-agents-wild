@@ -1,0 +1,38 @@
+# Replication config for: Coding Agents in the Wild
+
+python_version: "3.10"
+
+# AIDev dataset on Hugging Face (Parquet tables)
+# IMPORTANT: replace this with the EXACT dataset path you used.
+# Example format: "orgname/aidev"
+aidev_hf_dataset: "REPLACE_WITH_EXACT_HF_DATASET_PATH"
+
+min_stars: 500
+
+agents:
+  - "OpenAI_Codex"
+  - "Devin"
+  - "Copilot"
+  - "Cursor"
+  - "Claude_Code"
+
+# Optional: window used in the paper (keep or delete if not needed)
+time_window:
+  end: "2025-08-01"
+
+seed: 42
+
+# Table names referenced in the Methods section
+tables:
+  pull_request: "all_pull_request.parquet"
+  repository: "all_repository.parquet"
+  user: "all_user.parquet"
+  review_comments: "pr_review_comments_v2"
+  pr_review: "pr_review"
+  commit_details: "pr_commit_details"
+  pr_task: "pr_task"
+
+paths:
+  raw_dir: "data/raw"
+  derived_dir: "data/derived"
+  outputs_dir: "outputs"
